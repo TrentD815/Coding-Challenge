@@ -1,11 +1,14 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');     //For generating unique ids
 const path = require('path');
+const bodyParser = require('body-parser');
+const jsonParser = bodyParser.json();
 const hostname = '127.0.0.1';
 const port = 3000;
 
 const app = new express();
 app.use("/public", express.static('./public/'));
+app.use(jsonParser);
 
 app.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
@@ -56,10 +59,10 @@ app.get('/api/employees', (req, res) => {
 app.post('/api/employees', (req, res) => {
     try {
         const newEmployee = {
-            firstName: 'Trent',
-            lastName: 'Davis',
-            hireDate: '2022-01-01',
-            role: 'Lackey',
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            hireDate: req.body.hireDate,
+            role: req.body.role,
             id: uuidv4()
         }
         employees.push(newEmployee);
@@ -69,13 +72,17 @@ app.post('/api/employees', (req, res) => {
         res.status(500).send('Error creating employee');
     }
 });
-//
-// // Updating an employee
-// // PUT http://localhost:3000/api/employees/:id
-// app.put('/api//employees/1', (req, res) => {
-//     res.status(200).send('Updating an employee')
-// });
-//
+
+// Updating an employee
+app.put('/api/employees/:id', (req, res) => {
+    try {
+        res.status(200).send('Updating an employee');
+    }
+    catch (err) {
+        res.status(500).send('Error updating employee');
+    }
+});
+
 // Deleting an employee
 app.delete(`/api/employees/:id`, (req, res) => {
     try {

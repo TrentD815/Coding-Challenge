@@ -17,8 +17,9 @@ const buildEmployeeGrid = (employees) => {
                 </td>
                 <td>${employee.id}</td>
                 <td><button type="button" id="deleteEmployeeButton" onclick="deleteEmployee('${employee.id}')">Delete</button></td>
+                <td><button id="updateEmployeesButton" onclick="updateEmployees('${employee.id}')">Edit Employee</button></td>
             </tr>`
-        // $(`#hdate${employee.id}`).datepicker({ dateFormat: 'yyyy-mm-dd' })
+        $(`#hdate${employee.id}`).datepicker({ dateFormat: 'yyyy-mm-dd', maxDate: new Date() })     //Not sure why this doesn't work
         $('#employeeTable').append(employeeRow)
     }
 }
@@ -58,9 +59,18 @@ const updateEmployees = () => {
 }
 // HTTP call to create a new employee
 const createEmployee = async () => {
+    const newEmployee = {
+        firstName: $("#newEmployeeFirstName").val(),
+        lastName: $("#newEmployeeLastName").val(),
+        hireDate: $("#newEmployeeHireDate").val(),
+        role: $("#newEmployeeRole").val()
+    }
+    console.log(newEmployee)
     await $.ajax({
-        type: "POST",
-        url: `/api/employees/`,
+        type: 'POST',
+        url: '/api/employees/',
+        contentType: 'application/json',
+        data: JSON.stringify(newEmployee),
         success: async () => {
             clearEmployeeTable();
             await getAllEmployees()
@@ -86,3 +96,12 @@ const clearEmployeeTable = () => {
     )
 }
 
+// Dialog box instantiation properties
+$("#newEmployeeDialog").dialog({
+    autoOpen: false,
+    width: "auto",
+    height: "auto",
+});
+const openNewEmployeeDialog = () => {
+    $("#newEmployeeDialog").dialog("open");
+}
