@@ -3,12 +3,12 @@ const buildEmployeeGrid = (employees) => {
     for (const employee of employees) {
         const employeeRow =
             `<tr>
-                <td><input id="fname${employee.id}" type="text" value="${employee.firstName}"></td>
-                <td><input id="lname${employee.id}" type="text" value="${employee.lastName}"></td>
-                <td><input id="hdate${employee.id}" type="date" value="${employee.hireDate}"></td>
+                <td><input id="fname${employee.id}" type="text" value="${employee.firstName}" required></td>
+                <td><input id="lname${employee.id}" type="text" value="${employee.lastName}" required></td>
+                <td><input id="hdate${employee.id}" type="date" value="${employee.hireDate}" required></td>
                 <td>
                     <select id="role${employee.id}">
-                      <option  value="" selected disabled hidden>${employee.role}</option>
+                      <option value="" selected disabled hidden>${employee.role}</option>
                       <option value="CEO">CEO</option>
                       <option value="VP">VP</option>
                       <option value="Manager">Manager</option>
@@ -19,7 +19,7 @@ const buildEmployeeGrid = (employees) => {
                 <td><button type="button" id="deleteEmployeeButton" onclick="deleteEmployee('${employee.id}')">Delete</button></td>
                 <td><button id="updateEmployeeButton" onclick="updateEmployee('${employee.id}')">Edit Employee</button></td>
             </tr>`
-        $(`#hdate${employee.id}`).datepicker({ dateFormat: 'yyyy-mm-dd', maxDate: new Date() })     //Not sure why this doesn't work
+        $(`#hdate${employee.id}`).datepicker({ dateFormat: 'yyyy-mm-dd' })     //Not sure why this doesn't work
         $('#employeeTable').append(employeeRow)
     }
 }
@@ -54,51 +54,57 @@ const deleteEmployee = async (employeeId) => {
 }
 // HTTP call to update employee
 const updateEmployee = async (employeeId) => {
-    const updatedEmployee = {
-        firstName: $(`#fname${employeeId}`).val(),
-        lastName: $(`#lname${employeeId}`).val(),
-        hireDate: $(`#hdate${employeeId}`).val(),
-        role: $(`#role${employeeId}`).find('option:selected').text()
-    }
-    console.log(updatedEmployee)
-    await $.ajax({
-        type: "PUT",
-        url: `/api/employees/${employeeId}`,
-        contentType: 'application/json',
-        data: JSON.stringify(updatedEmployee),
-        success: async () => {
-            clearEmployeeTable();
-            await getAllEmployees();
-            //console.log("Employee updated successfully!")
-        },
-        error: (err) => {
-            console.error(`Error updating employee: ${err}`);
+    const isValid = validateFields(employeeId, 'update');
+    if (isValid) {
+        const updatedEmployee = {
+            firstName: $(`#fname${employeeId}`).val(),
+            lastName: $(`#lname${employeeId}`).val(),
+            hireDate: $(`#hdate${employeeId}`).val(),
+            role: $(`#role${employeeId}`).find('option:selected').text()
         }
-    })
+
+        await $.ajax({
+            type: "PUT",
+            url: `/api/employees/${employeeId}`,
+            contentType: 'application/json',
+            data: JSON.stringify(updatedEmployee),
+            success: async () => {
+                clearEmployeeTable();
+                await getAllEmployees();
+                alert("Employee updated successfully!");    //Ideally this would be a non blocking message like a toast that goes away on it's own
+            },
+            error: (err) => {
+                console.error(`Error updating employee: ${err}`);
+            }
+        })
+    }
+
 }
 // HTTP call to create a new employee
 const createEmployee = async () => {
-    const newEmployee = {
-        firstName: $("#newEmployeeFirstName").val(),
-        lastName: $("#newEmployeeLastName").val(),
-        hireDate: $("#newEmployeeHireDate").val(),
-        role: $("#newEmployeeRole").val()
-    }
-    console.log(newEmployee)
-    await $.ajax({
-        type: 'POST',
-        url: '/api/employees/',
-        contentType: 'application/json',
-        data: JSON.stringify(newEmployee),
-        success: async () => {
-            clearEmployeeTable();
-            await getAllEmployees()
-            //console.log('Employee successfully created!')
-        },
-        error: (err) => {
-            console.error(`Error creating employee: ${err}`);
+    const isValid = validateFields('','new')
+    if (isValid) {
+        const newEmployee = {
+            firstName: $("#newEmployeeFirstName").val(),
+            lastName: $("#newEmployeeLastName").val(),
+            hireDate: $("#newEmployeeHireDate").val(),
+            role: $("#newEmployeeRole").val()
         }
-    })
+        await $.ajax({
+            type: 'POST',
+            url: '/api/employees/',
+            contentType: 'application/json',
+            data: JSON.stringify(newEmployee),
+            success: async () => {
+                clearEmployeeTable();
+                await getAllEmployees()
+                //console.log('Employee successfully created!')
+            },
+            error: (err) => {
+                console.error(`Error creating employee: ${err}`);
+            }
+        })
+    }
 }
 // Refresh the employee table when an employee is deleted, added, or edited
 const clearEmployeeTable = () => {
@@ -121,4 +127,24 @@ $("#newEmployeeDialog").dialog({
 });
 const openNewEmployeeDialog = () => {
     $("#newEmployeeDialog").dialog("open");
+}
+
+const validateFields = (employeeId, validationArea) => {
+    const firstName = (validationArea === 'update') ? $(`#fname${employeeId}`).val() : $(`#newEmployeeFirstName`).val();
+    const lastName = (validationArea === 'update') ? $(`#lname${employeeId}`).val() : $(`#newEmployeeLastName`).val();
+    const hireDate = (validationArea === 'update') ? $(`#hdate${employeeId}`).val() : $(`#newEmployeeHireDate`).val();
+
+    if (firstName.trim() == null || lastName.trim() == null || firstName.trim() === "" || lastName.trim() === "") {
+        alert("First and last name fields must be filled in.")
+        return false;
+    }
+    else if (!isNaN(firstName) || !isNaN(lastName)) {
+        alert("First and last name cannot be numbers.")
+        return false;
+    }
+    else if (Date.parse(hireDate) > Date.now()) {
+        alert ("Hire date must be in the past.")
+        return false;
+    }
+    return true;
 }

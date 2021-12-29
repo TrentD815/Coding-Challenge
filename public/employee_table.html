@@ -2,9 +2,11 @@
 <html lang="en">
 <head>
     <title>IBM Coding Challenge</title>
+    <!-- JQuery CDNs for general use, ui, and validation-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" type="text/javascript"></script>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/cupertino/jquery-ui.css">
+<!--    <script src="https://ajax.microsoft.com/ajax/jquery.validate/1.7/additional-methods.js"></script>-->
 </head>
 
 <style>
@@ -25,18 +27,17 @@
         </tr>
     </table>
     <button id="createEmployeeButton" onclick="openNewEmployeeDialog()">New Employee</button>
-    <br>
-    <br>
+
     <!-- Dialog box for creating a new employee -->
     <div id="newEmployeeDialog" title="Create New Employee">
-        <form>
+        <form id="newEmployeeForm">
             <fieldset>
                 <label for="newEmployeeFirstName">First Name</label>
-                <input type="text" id="newEmployeeFirstName" class="text ui-widget-content ui-corner-all">
+                <input type="text" id="newEmployeeFirstName" class="text ui-widget-content ui-corner-all" required>
                 <label for="newEmployeeLastName">Last Name</label>
-                <input type="text"  id="newEmployeeLastName" class="text ui-widget-content ui-corner-all">
+                <input type="text"  id="newEmployeeLastName" class="text ui-widget-content ui-corner-all" required>
                 <label for="newEmployeeHireDate">Hire Date</label>
-                <input type="date" id="newEmployeeHireDate" class="text ui-widget-content ui-corner-all">
+                <input type="date" id="newEmployeeHireDate" class="text ui-widget-content ui-corner-all" required>
                 <label for="newEmployeeRole">Role</label>
                 <select id="newEmployeeRole" class="text ui-widget-content ui-corner-all">
                     <option value="CEO">CEO</option>

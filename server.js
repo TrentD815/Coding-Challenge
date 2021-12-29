@@ -77,7 +77,6 @@ app.post('/api/employees', (req, res) => {
 app.put('/api/employees/:id', (req, res) => {
     try {
         const userToUpdate = req.params.id;
-
         const employeeIndex = employees.findIndex((obj => obj.id === userToUpdate));
         employees[employeeIndex].firstName = req.body.firstName;
         employees[employeeIndex].lastName = req.body.lastName;
