@@ -8,7 +8,7 @@ const buildEmployeeGrid = (employees) => {
                 <td><input id="hdate${employee.id}" type="date" value="${employee.hireDate}"></td>
                 <td>
                     <select id="role${employee.id}">
-                      <option value="" selected disabled hidden>${employee.role}</option>
+                      <option  value="" selected disabled hidden>${employee.role}</option>
                       <option value="CEO">CEO</option>
                       <option value="VP">VP</option>
                       <option value="Manager">Manager</option>
@@ -17,13 +17,12 @@ const buildEmployeeGrid = (employees) => {
                 </td>
                 <td>${employee.id}</td>
                 <td><button type="button" id="deleteEmployeeButton" onclick="deleteEmployee('${employee.id}')">Delete</button></td>
-                <td><button id="updateEmployeesButton" onclick="updateEmployees('${employee.id}')">Edit Employee</button></td>
+                <td><button id="updateEmployeeButton" onclick="updateEmployee('${employee.id}')">Edit Employee</button></td>
             </tr>`
         $(`#hdate${employee.id}`).datepicker({ dateFormat: 'yyyy-mm-dd', maxDate: new Date() })     //Not sure why this doesn't work
         $('#employeeTable').append(employeeRow)
     }
 }
-
 // HTTP call to retrieve all employees
 const getAllEmployees = async () => {
     await $.ajax({
@@ -46,16 +45,36 @@ const deleteEmployee = async (employeeId) => {
         success: async () => {
             clearEmployeeTable();
             await getAllEmployees();
-            //console.log('Employee successfully deleted')
+            //console.log('Employee successfully deleted!')
         },
         error: (err) => {
             console.error(`Error deleting employee: ${err}`);
         }
     })
 }
-// HTTP call to update employees
-const updateEmployees = () => {
-    alert("updating employees")
+// HTTP call to update employee
+const updateEmployee = async (employeeId) => {
+    const updatedEmployee = {
+        firstName: $(`#fname${employeeId}`).val(),
+        lastName: $(`#lname${employeeId}`).val(),
+        hireDate: $(`#hdate${employeeId}`).val(),
+        role: $(`#role${employeeId}`).find('option:selected').text()
+    }
+    console.log(updatedEmployee)
+    await $.ajax({
+        type: "PUT",
+        url: `/api/employees/${employeeId}`,
+        contentType: 'application/json',
+        data: JSON.stringify(updatedEmployee),
+        success: async () => {
+            clearEmployeeTable();
+            await getAllEmployees();
+            //console.log("Employee updated successfully!")
+        },
+        error: (err) => {
+            console.error(`Error updating employee: ${err}`);
+        }
+    })
 }
 // HTTP call to create a new employee
 const createEmployee = async () => {
@@ -74,14 +93,13 @@ const createEmployee = async () => {
         success: async () => {
             clearEmployeeTable();
             await getAllEmployees()
-            console.log('Employee successfully created')
+            //console.log('Employee successfully created!')
         },
         error: (err) => {
             console.error(`Error creating employee: ${err}`);
         }
     })
 }
-
 // Refresh the employee table when an employee is deleted, added, or edited
 const clearEmployeeTable = () => {
     $("#employeeTable tr").detach();
@@ -95,7 +113,6 @@ const clearEmployeeTable = () => {
         </tr>`
     )
 }
-
 // Dialog box instantiation properties
 $("#newEmployeeDialog").dialog({
     autoOpen: false,

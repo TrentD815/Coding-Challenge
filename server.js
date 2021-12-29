@@ -76,6 +76,14 @@ app.post('/api/employees', (req, res) => {
 // Updating an employee
 app.put('/api/employees/:id', (req, res) => {
     try {
+        const userToUpdate = req.params.id;
+
+        const employeeIndex = employees.findIndex((obj => obj.id === userToUpdate));
+        employees[employeeIndex].firstName = req.body.firstName;
+        employees[employeeIndex].lastName = req.body.lastName;
+        employees[employeeIndex].hireDate = req.body.hireDate;
+        employees[employeeIndex].role = req.body.role;
+
         res.status(200).send('Updating an employee');
     }
     catch (err) {
