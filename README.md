@@ -1,4 +1,4 @@
-##Coding Challenge
+# Coding Challenge
 
 ### Basic Usage
 1. Download the source code and start the project using `node server.js`. From there going to `localhost:3000` should work.
